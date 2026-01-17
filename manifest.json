@@ -4,7 +4,7 @@
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "一个强大的Obsidian插件，用于通过Git同步您的笔记库，实现多设备间的无缝同步。",
-	"author": "Your Name",
-	"authorUrl": "https://github.com/yourusername",
+	"author": "AndersHsueh (薛余恒)",
+	"authorUrl": "https://github.com/AndersHsueh",
 	"isDesktopOnly": true
 }
