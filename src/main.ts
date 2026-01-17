@@ -1,4 +1,4 @@
-import { Plugin, Notice, TAbstractFile, TFile, TFolder, Workspace, addIcon, App, Modal, Setting, Vault, FileSystemAdapter, requestUrl, PluginSettingTab } from 'obsidian';
+import { Plugin, Notice, TAbstractFile, TFile, TFolder, App, Modal, Setting, FileSystemAdapter, PluginSettingTab } from 'obsidian';
 import { spawn, exec } from 'child_process';
 import * as path from 'path';
 
@@ -19,12 +19,13 @@ const DEFAULT_SETTINGS: SyncFromGitSettings = {
 export default class SyncFromGit extends Plugin {
 	settings: SyncFromGitSettings;
 	private syncIntervalId: number | null = null;
+	private fileMenuEventRef: any = null;
 
 	async onload() {
 		await this.loadSettings();
 
 		// 添加右键菜单项：提交GIT库
-		this.registerEvent(
+		this.fileMenuEventRef = this.registerEvent(
 			this.app.workspace.on('file-menu', (menu, file) => {
 				menu.addItem((item) => {
 					item
@@ -64,6 +65,7 @@ export default class SyncFromGit extends Plugin {
 		if (this.syncIntervalId !== null) {
 			window.clearInterval(this.syncIntervalId);
 		}
+		this.fileMenuEventRef = null;
 	}
 
 	async loadSettings() {
@@ -71,7 +73,26 @@ export default class SyncFromGit extends Plugin {
 	}
 
 	async saveSettings() {
+		if (this.settings.gitUrl && !this.isValidGitUrl(this.settings.gitUrl)) {
+			new Notice('警告：Git URL 格式可能不正确，请检查。');
+		}
 		await this.saveData(this.settings);
+	}
+
+	private isValidGitUrl(url: string): boolean {
+		if (!url || url.trim() === '') {
+			return true; // 空值允许，在同步时再检查
+		}
+
+		// 验证常见的 Git URL 格式
+		const patterns = [
+			/^https?:\/\/.+\..+\/.+.git$/,  // HTTPS/HTTP: https://github.com/user/repo.git
+			/^git@.+\..+:.+.git$/,          // SSH: git@github.com:user/repo.git
+			/^ssh:\/\/git@.+\..+:.+.git$/,     // SSH URL: ssh://git@github.com:user/repo.git
+			/^[a-z0-9]+:\/\/.+/                  // 其他协议如 git://
+		];
+
+		return patterns.some(pattern => pattern.test(url));
 	}
 
 	startAutoSync() {
@@ -174,7 +195,29 @@ export default class SyncFromGit extends Plugin {
 	private getRelativePath(file: TAbstractFile | null): string {
 		if (!file) return '.';
 		if (file.path === '/') return '.';
-		return file.path.startsWith('/') ? file.path.substring(1) : file.path;
+
+		const relativePath = file.path.startsWith('/') ? file.path.substring(1) : file.path;
+
+		if (!this.isValidFilePath(relativePath)) {
+			throw new Error(`Invalid file path: ${relativePath}`);
+		}
+
+		return relativePath;
+	}
+
+	private isValidFilePath(path: string): boolean {
+		if (!path || path.trim() === '') return true;
+
+		const normalizedPath = path.replace(/\\/g, '/');
+
+		const dangerousPatterns = [
+			/\.\./,  // Path traversal attempt
+			/^\/+/,   // Absolute path from root
+			/\*|/,    // Wildcards in paths
+			/<|>/,    // HTML injection attempt
+		];
+
+		return !dangerousPatterns.some(pattern => pattern.test(normalizedPath));
 	}
 
 	private async executeGitCommand(args: string[]): Promise<string> {
