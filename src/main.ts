@@ -20,9 +20,13 @@ export default class SyncFromGit extends Plugin {
 	settings: SyncFromGitSettings;
 	private syncIntervalId: number | null = null;
 	private fileMenuEventRef: any = null;
+	private statusBar: HTMLElement | null = null;
 
 	async onload() {
 		await this.loadSettings();
+
+		this.statusBar = this.addStatusBarItem();
+		this.updateSyncStatus('就绪', 'ready');
 
 		// 添加右键菜单项：提交GIT库
 		this.fileMenuEventRef = this.registerEvent(
@@ -66,6 +70,20 @@ export default class SyncFromGit extends Plugin {
 			window.clearInterval(this.syncIntervalId);
 		}
 		this.fileMenuEventRef = null;
+		this.statusBar = null;
+	}
+
+	updateSyncStatus(message: string, type: 'ready' | 'syncing' | 'success' | 'error') {
+		if (!this.statusBar) return;
+
+		const icons = {
+			ready: '⚪',
+			syncing: '🔄',
+			success: '✅',
+			error: '❌'
+		};
+
+		this.statusBar.setText(`${icons[type]} ${message}`);
 	}
 
 	async loadSettings() {
@@ -113,6 +131,8 @@ export default class SyncFromGit extends Plugin {
 			return;
 		}
 
+		this.updateSyncStatus('同步中...', 'syncing');
+
 		try {
 			// 检查当前路径是否是git仓库，如果不是则初始化
 			const isRepo = await this.isGitRepository();
@@ -142,9 +162,12 @@ export default class SyncFromGit extends Plugin {
 			// 更新最后同步时间
 			this.settings.lastSyncTime = Date.now();
 			await this.saveSettings();
+
+			this.updateSyncStatus('已同步', 'success');
 		} catch (error) {
 			console.error('同步失败:', error);
 			new Notice(`同步失败: ${error.message}`);
+			this.updateSyncStatus('同步失败', 'error');
 		}
 	}
 
@@ -153,6 +176,8 @@ export default class SyncFromGit extends Plugin {
 			new Notice('请先在设置中配置GIT仓库URL');
 			return;
 		}
+
+		this.updateSyncStatus('同步中...', 'syncing');
 
 		try {
 			// 检查当前路径是否是git仓库
@@ -186,9 +211,12 @@ export default class SyncFromGit extends Plugin {
 			} else {
 				new Notice(`文件无更改，无需提交`);
 			}
+
+			this.updateSyncStatus('已同步', 'success');
 		} catch (error) {
 			console.error('文件同步失败:', error);
 			new Notice(`文件同步失败: ${error.message}`);
+			this.updateSyncStatus('同步失败', 'error');
 		}
 	}
 
