@@ -1,0 +1,56 @@
+{
+  "plugin.name": "SyncFromGit (吉他庫庫)",
+  "plugin.description": "Obsidian のノート vaults を Git で同期し、複数のデバイス間でシームレスな同期を実現する強力な Obsidian プラグインです。",
+
+  "command.sync-now": "今すぐ同期",
+  "command.sync-now.description": "すぐに同期を実行",
+
+  "setting.title": "SyncFromGit 設定",
+  "setting.gitUrl": "Git リポジトリ URL",
+  "setting.gitUrl.placeholder": "https://github.com/user/repo.git",
+  "setting.gitUrl.description": "Git リポジトリのアドレスを入力",
+  "setting.autoSync": "自動同期を有効化",
+  "setting.autoSync.description": "定期的な自動同期を有効にする",
+  "setting.autoSyncInterval": "自動同期間隔",
+  "setting.autoSyncInterval.description": "自動同期の間隔（分）",
+  "setting.autoSyncInterval.minutes": "分",
+  "setting.cloneButton": "リポジトリをクローン",
+  "setting.syncButton": "同期",
+  "setting.syncNow": "今すぐ同期",
+  "setting.syncNow.description": "今すぐ同期を実行",
+  "setting.cloneRepository": "Git からクローン",
+  "setting.cloneRepository.description": "リモート Git リポジトリからコンテンツをクローン",
+  "setting.lastSyncTime": "最終同期時間",
+
+  "status.ready": "準備完了",
+  "status.syncing": "同期中...",
+  "status.success": "同期完了",
+  "status.error": "同期失敗",
+
+  "menu.commitToGit": "Git にコミット",
+  "menu.commitToGit.file": "ファイルを Git にコミット",
+  "menu.commitToGit.folder": "フォルダを Git にコミット",
+
+  "notice.gitUrlRequired": "まず設定で Git リポジトリ URL を構成してください",
+  "notice.notGitRepo": "現在のディレクトリは Git リポジトリではありません。初期化中...",
+  "notice.syncComplete": "同期完了: 取得={pull}, 送信={push}",
+  "notice.pullComplete": "同期完了: 取得={result}",
+  "notice.noChanges": "変更なし、コミット不要",
+  "notice.fileSyncSuccess": "ファイル同期成功: {result}",
+  "notice.fileNoChanges": "ファイルに変更なし、コミット不要",
+  "notice.syncError": "同期失敗: {error}",
+  "notice.fileSyncError": "ファイル同期失敗: {error}",
+  "notice.gitUrlInvalid": "警告: Git URL の形式が正しくない可能性があります。確認してください。",
+  "notice.pleaseInputGitUrl": "上に Git リポジトリ URL を入力してください",
+  "notice.noBranches": "リモートブランチリストの取得に失敗",
+  "notice.cloningFromBranch": "ブランチ {branch} からクローン中...",
+  "notice.cloneComplete": "クローン完了！",
+  "notice.cloneFailed": "クローン失敗: {error}",
+  "notice.getBranchesFailed": "ブランチリスト取得失敗: {error}",
+
+  "modal.selectBranch": "チェックアウトするブランチを選択",
+  "modal.cancel": "キャンセル",
+
+  "ribbon.syncFromGit": "Git から同期",
+  "branchSelection.title": "チェックアウトするブランチを選択"
+}

@@ -1,0 +1,56 @@
+{
+  "plugin.name": "SyncFromGit (吉他库库)",
+  "plugin.description": "一个强大的Obsidian插件，用于通过Git同步您的笔记库，实现多设备间的无缝同步。",
+
+  "command.sync-now": "立即同步",
+  "command.sync-now.description": "立即执行同步操作",
+
+  "setting.title": "SyncFromGit (吉他库库) 设置",
+  "setting.gitUrl": "Git仓库URL",
+  "setting.gitUrl.placeholder": "https://github.com/user/repo.git",
+  "setting.gitUrl.description": "输入您的Git仓库地址",
+  "setting.autoSync": "启用自动同步",
+  "setting.autoSync.description": "是否启用定时自动同步",
+  "setting.autoSyncInterval": "自动同步间隔",
+  "setting.autoSyncInterval.description": "自动同步的时间间隔（分钟）",
+  "setting.autoSyncInterval.minutes": "分钟",
+  "setting.cloneButton": "克隆仓库",
+  "setting.syncButton": "同步",
+  "setting.syncNow": "立即同步",
+  "setting.syncNow.description": "立即执行一次同步操作",
+  "setting.cloneRepository": "从Git仓库克隆",
+  "setting.cloneRepository.description": "从远程Git仓库克隆内容到当前笔记库",
+  "setting.lastSyncTime": "上次同步时间",
+
+  "status.ready": "就绪",
+  "status.syncing": "同步中...",
+  "status.success": "已同步",
+  "status.error": "同步失败",
+
+  "menu.commitToGit": "提交GIT库",
+  "menu.commitToGit.file": "提交文件到GIT",
+  "menu.commitToGit.folder": "提交文件夹到GIT",
+
+  "notice.gitUrlRequired": "请先在设置中配置GIT仓库URL",
+  "notice.notGitRepo": "当前目录不是Git仓库，正在初始化...",
+  "notice.syncComplete": "同步完成: 拉取={pull}, 推送={push}",
+  "notice.pullComplete": "同步完成: 拉取={result}",
+  "notice.noChanges": "无更改，无需提交",
+  "notice.fileSyncSuccess": "文件同步成功: {result}",
+  "notice.fileNoChanges": "文件无更改，无需提交",
+  "notice.syncError": "同步失败: {error}",
+  "notice.fileSyncError": "文件同步失败: {error}",
+  "notice.gitUrlInvalid": "警告：Git URL 格式可能不正确，请检查。",
+  "notice.pleaseInputGitUrl": "请先在上方输入Git仓库URL",
+  "notice.noBranches": "未能获取到远程分支列表",
+  "notice.cloningFromBranch": "正在从分支 {branch} 克隆...",
+  "notice.cloneComplete": "克隆完成！",
+  "notice.cloneFailed": "克隆失败: {error}",
+  "notice.getBranchesFailed": "获取分支列表失败: {error}",
+
+  "modal.selectBranch": "选择要检出的分支",
+  "modal.cancel": "取消",
+
+  "ribbon.syncFromGit": "Sync From Git",
+  "branchSelection.title": "选择要检出的分支"
+}

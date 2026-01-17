@@ -1,6 +1,7 @@
 import { Plugin, Notice, TAbstractFile, TFile, TFolder, App, Modal, Setting, FileSystemAdapter, PluginSettingTab } from 'obsidian';
 import { spawn, exec } from 'child_process';
 import * as path from 'path';
+import { i18n, t } from './i18n';
 
 interface SyncFromGitSettings {
 	gitUrl: string;
@@ -25,15 +26,17 @@ export default class SyncFromGit extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+		await i18n.initialize(this.app);
+
 		this.statusBar = this.addStatusBarItem();
-		this.updateSyncStatus('就绪', 'ready');
+		this.updateSyncStatus(t('status.ready'), 'ready');
 
 		// 添加右键菜单项：提交GIT库
 		this.fileMenuEventRef = this.registerEvent(
 			this.app.workspace.on('file-menu', (menu, file) => {
 				menu.addItem((item) => {
 					item
-						.setTitle('提交GIT库')
+						.setTitle(t('menu.commitToGit'))
 						.setIcon('upload')
 						.onClick(async () => {
 							await this.syncFileToGit(file);
@@ -43,14 +46,14 @@ export default class SyncFromGit extends Plugin {
 		);
 
 		// 添加侧边栏图标和功能
-		const ribbonIcon = this.addRibbonIcon('refresh-cw', 'Sync From Git', async () => {
+		const ribbonIcon = this.addRibbonIcon('refresh-cw', t('ribbon.syncFromGit'), async () => {
 			await this.performSync();
 		});
 
 		// 添加命令
 		this.addCommand({
 			id: 'sync-now',
-			name: '立即同步',
+			name: t('command.sync-now'),
 			callback: async () => {
 				await this.performSync();
 			}
@@ -92,7 +95,7 @@ export default class SyncFromGit extends Plugin {
 
 	async saveSettings() {
 		if (this.settings.gitUrl && !this.isValidGitUrl(this.settings.gitUrl)) {
-			new Notice('警告：Git URL 格式可能不正确，请检查。');
+			new Notice(t('notice.gitUrlInvalid'));
 		}
 		await this.saveData(this.settings);
 	}
@@ -127,17 +130,17 @@ export default class SyncFromGit extends Plugin {
 
 	async performSync() {
 		if (!this.settings.gitUrl) {
-			new Notice('请先在设置中配置GIT仓库URL');
+			new Notice(t('notice.gitUrlRequired'));
 			return;
 		}
 
-		this.updateSyncStatus('同步中...', 'syncing');
+		this.updateSyncStatus(t('status.syncing'), 'syncing');
 
 		try {
 			// 检查当前路径是否是git仓库，如果不是则初始化
 			const isRepo = await this.isGitRepository();
 			if (!isRepo) {
-				new Notice('当前目录不是Git仓库，正在初始化...');
+				new Notice(t('notice.notGitRepo'));
 				await this.initGitRepo();
 			}
 
@@ -154,36 +157,36 @@ export default class SyncFromGit extends Plugin {
 
 			if (commitResult !== 'No changes to commit') {
 				const pushResult = await this.gitPush();
-				new Notice(`同步完成: 拉取=${pullResult}, 推送=${pushResult}`);
+				new Notice(t('notice.syncComplete', { pull: pullResult, push: pushResult }));
 			} else {
-				new Notice(`同步完成: 拉取=${pullResult}`);
+				new Notice(t('notice.pullComplete', { result: pullResult }));
 			}
 
 			// 更新最后同步时间
 			this.settings.lastSyncTime = Date.now();
 			await this.saveSettings();
 
-			this.updateSyncStatus('已同步', 'success');
+			this.updateSyncStatus(t('status.success'), 'success');
 		} catch (error) {
-			console.error('同步失败:', error);
-			new Notice(`同步失败: ${error.message}`);
-			this.updateSyncStatus('同步失败', 'error');
+			console.error(t('notice.syncError', { error: error.message }), error);
+			new Notice(t('notice.syncError', { error: error.message }));
+			this.updateSyncStatus(t('status.error'), 'error');
 		}
 	}
 
 	async syncFileToGit(file: TAbstractFile) {
 		if (!this.settings.gitUrl) {
-			new Notice('请先在设置中配置GIT仓库URL');
+			new Notice(t('notice.gitUrlRequired'));
 			return;
 		}
 
-		this.updateSyncStatus('同步中...', 'syncing');
+		this.updateSyncStatus(t('status.syncing'), 'syncing');
 
 		try {
 			// 检查当前路径是否是git仓库
 			const isRepo = await this.isGitRepository();
 			if (!isRepo) {
-				new Notice('当前目录不是Git仓库，正在初始化...');
+				new Notice(t('notice.notGitRepo'));
 				await this.initGitRepo();
 			}
 
@@ -207,16 +210,16 @@ export default class SyncFromGit extends Plugin {
 			if (commitResult !== 'No changes to commit') {
 				// 推送到远程仓库
 				const pushResult = await this.gitPush();
-				new Notice(`文件同步成功: ${pushResult}`);
+				new Notice(t('notice.fileSyncSuccess', { result: pushResult }));
 			} else {
-				new Notice(`文件无更改，无需提交`);
+				new Notice(t('notice.fileNoChanges'));
 			}
 
-			this.updateSyncStatus('已同步', 'success');
+			this.updateSyncStatus(t('status.success'), 'success');
 		} catch (error) {
-			console.error('文件同步失败:', error);
-			new Notice(`文件同步失败: ${error.message}`);
-			this.updateSyncStatus('同步失败', 'error');
+			console.error(t('notice.fileSyncError', { error: error.message }), error);
+			new Notice(t('notice.fileSyncError', { error: error.message }));
+			this.updateSyncStatus(t('status.error'), 'error');
 		}
 	}
 
@@ -433,7 +436,7 @@ class BranchSelectionModal extends Modal {
 
 		// 创建分支选择界面
 		const { contentEl } = this;
-		contentEl.createEl('h3', { text: '选择要检出的分支' });
+		contentEl.createEl('h3', { text: t('branchSelection.title') });
 
 		branches.forEach(branch => {
 			const branchButton = contentEl.createEl('button', {
@@ -450,7 +453,7 @@ class BranchSelectionModal extends Modal {
 
 		// 添加取消按钮
 		const cancelButton = contentEl.createEl('button', {
-			text: '取消',
+			text: t('modal.cancel'),
 			attr: { style: 'display: block; width: 100%;' }
 		});
 
@@ -473,13 +476,13 @@ class SyncFromGitSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'SyncFromGit (吉他库库) 设置' });
+		containerEl.createEl('h2', { text: t('setting.title') });
 
 		new Setting(containerEl)
-			.setName('Git仓库URL')
-			.setDesc('输入您的Git仓库地址')
+			.setName(t('setting.gitUrl'))
+			.setDesc(t('setting.gitUrl.description'))
 			.addText(text => text
-				.setPlaceholder('https://github.com/user/repo.git')
+				.setPlaceholder(t('setting.gitUrl.placeholder'))
 				.setValue(this.plugin.settings.gitUrl)
 				.onChange(async (value) => {
 					this.plugin.settings.gitUrl = value;
@@ -487,8 +490,8 @@ class SyncFromGitSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('启用自动同步')
-			.setDesc('是否启用定时自动同步')
+			.setName(t('setting.autoSync'))
+			.setDesc(t('setting.autoSync.description'))
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.autoSyncEnabled)
 				.onChange(async (value) => {
@@ -505,8 +508,8 @@ class SyncFromGitSettingTab extends PluginSettingTab {
 
 		if (this.plugin.settings.autoSyncEnabled) {
 			new Setting(containerEl)
-				.setName('自动同步间隔')
-				.setDesc('自动同步的时间间隔（分钟）')
+				.setName(t('setting.autoSyncInterval'))
+				.setDesc(t('setting.autoSyncInterval.description'))
 				.addSlider(slider => slider
 					.setLimits(5, 120, 5)
 					.setValue(this.plugin.settings.autoSyncInterval)
@@ -519,14 +522,14 @@ class SyncFromGitSettingTab extends PluginSettingTab {
 							this.plugin.startAutoSync();
 						}
 					}))
-				.setDesc('分钟');
+				.setDesc(t('setting.autoSyncInterval.minutes'));
 		}
 
 		new Setting(containerEl)
-			.setName('立即同步')
-			.setDesc('立即执行一次同步操作')
+			.setName(t('setting.syncNow'))
+			.setDesc(t('setting.syncNow.description'))
 			.addButton(btn => btn
-				.setButtonText('同步')
+				.setButtonText(t('setting.syncButton'))
 				.setCta()
 				.onClick(async () => {
 					await this.plugin.performSync();
@@ -534,15 +537,15 @@ class SyncFromGitSettingTab extends PluginSettingTab {
 
 		// 添加克隆仓库按钮
 		new Setting(containerEl)
-			.setName('从Git仓库克隆')
-			.setDesc('从远程Git仓库克隆内容到当前笔记库')
+			.setName(t('setting.cloneRepository'))
+			.setDesc(t('setting.cloneRepository.description'))
 			.addButton(btn => btn
-				.setButtonText('克隆仓库')
+				.setButtonText(t('setting.cloneButton'))
 				.setWarning()
 				.onClick(async () => {
 					const gitUrl = this.plugin.settings.gitUrl;
 					if (!gitUrl) {
-						new Notice('请先在上方输入Git仓库URL');
+						new Notice(t('notice.pleaseInputGitUrl'));
 						return;
 					}
 
@@ -550,31 +553,31 @@ class SyncFromGitSettingTab extends PluginSettingTab {
 						// 获取远程分支列表
 						const branches = await this.plugin.getRemoteBranches(gitUrl);
 						if (branches.length === 0) {
-							new Notice('未能获取到远程分支列表');
+							new Notice(t('notice.noBranches'));
 							return;
 						}
 
 						// 显示分支选择对话框
 						new BranchSelectionModal(this.plugin.app, branches, async (selectedBranch) => {
 							try {
-								new Notice(`正在从分支 ${selectedBranch} 克隆...`);
+								new Notice(t('notice.cloningFromBranch', { branch: selectedBranch }));
 								await this.plugin.cloneFromGit(gitUrl, selectedBranch);
-								new Notice('克隆完成！');
+								new Notice(t('notice.cloneComplete'));
 							} catch (error) {
 								console.error('克隆失败:', error);
-								new Notice(`克隆失败: ${error.message}`);
+								new Notice(t('notice.cloneFailed', { error: error.message }));
 							}
 						}).open();
 					} catch (error) {
 						console.error('获取分支列表失败:', error);
-						new Notice(`获取分支列表失败: ${error.message}`);
+						new Notice(t('notice.getBranchesFailed', { error: error.message }));
 					}
 				}));
 
 		if (this.plugin.settings.lastSyncTime > 0) {
 			const lastSyncStr = new Date(this.plugin.settings.lastSyncTime).toLocaleString();
 			containerEl.createEl('div', {
-				text: `上次同步时间: ${lastSyncStr}`,
+				text: `${t('setting.lastSyncTime')}: ${lastSyncStr}`,
 				cls: 'setting-item-description'
 			});
 		}
