@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tools": [
+    {
+      "name": "fetch",
+      "description": "使模型能够发出网络请求",
+      "command": "uvx",
+      "args": [
+        "mcp-server-fetch"
+      ]
+    }
+  ]
+}

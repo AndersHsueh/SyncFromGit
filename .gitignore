@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Production builds
+/dist/
+/beta/
+
+# Environment variables
+.env*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Obsidian specific
+.obsidian/
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.idx
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# Temporary folders
+.tmp
+.temp
+
+# User-specific
+*.local.*
+
+# Plugin data
+.data/
