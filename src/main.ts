@@ -26,7 +26,7 @@ export default class SyncFromGit extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		await i18n.initialize(this.app);
+		await i18n.initialize(this.app, this.manifest.id);
 
 		this.statusBar = this.addStatusBarItem();
 		this.updateSyncStatus(t('status.ready'), 'ready');
