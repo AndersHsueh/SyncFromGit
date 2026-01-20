@@ -43,3 +43,6 @@ coverage
 
 # Plugin data
 .data/
+
+# Wiki directory
+wiki
