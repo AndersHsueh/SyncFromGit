@@ -47,6 +47,7 @@
   "notice.cloneComplete": "복제 완료!",
   "notice.cloneFailed": "복제 실패: {error}",
   "notice.getBranchesFailed": "브랜치 목록 가져오기 실패: {error}",
+  "notice.syncAlreadyInProgress": "동기화가 이미 진행 중입니다. 잠시 기다려 주세요...",
 
   "modal.selectBranch": "체크아웃할 브랜치 선택",
   "modal.cancel": "취소",

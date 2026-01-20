@@ -22,6 +22,7 @@ export default class SyncFromGit extends Plugin {
 	private syncIntervalId: number | null = null;
 	private fileMenuEventRef: any = null;
 	private statusBar: HTMLElement | null = null;
+	private isSyncInProgress: boolean = false;
 
 	async onload() {
 		await this.loadSettings();
@@ -129,8 +130,17 @@ export default class SyncFromGit extends Plugin {
 	}
 
 	async performSync() {
+		// 防止并发执行同步操作
+		if (this.isSyncInProgress) {
+			new Notice(t('notice.syncAlreadyInProgress'));
+			return;
+		}
+
+		this.isSyncInProgress = true;
+
 		if (!this.settings.gitUrl) {
 			new Notice(t('notice.gitUrlRequired'));
+			this.isSyncInProgress = false;
 			return;
 		}
 
@@ -171,6 +181,9 @@ export default class SyncFromGit extends Plugin {
 			console.error(t('notice.syncError', { error: error.message }), error);
 			new Notice(t('notice.syncError', { error: error.message }));
 			this.updateSyncStatus(t('status.error'), 'error');
+		} finally {
+			// 确保无论成功还是失败都要重置同步状态
+			this.isSyncInProgress = false;
 		}
 	}
 

@@ -56,6 +56,7 @@ const DEFAULT_MESSAGES: LocaleMessages = {
 	'notice.cloneComplete': 'Clone complete!',
 	'notice.cloneFailed': 'Clone failed: {error}',
 	'notice.getBranchesFailed': 'Failed to get branch list: {error}',
+	'notice.syncAlreadyInProgress': 'Synchronization is already in progress, please wait...',
 
 	'modal.selectBranch': 'Select Branch to Checkout',
 	'modal.cancel': 'Cancel',

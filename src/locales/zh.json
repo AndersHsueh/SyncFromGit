@@ -47,6 +47,7 @@
   "notice.cloneComplete": "克隆完成！",
   "notice.cloneFailed": "克隆失败: {error}",
   "notice.getBranchesFailed": "获取分支列表失败: {error}",
+  "notice.syncAlreadyInProgress": "同步已在进行中，请稍候...",
 
   "modal.selectBranch": "选择要检出的分支",
   "modal.cancel": "取消",

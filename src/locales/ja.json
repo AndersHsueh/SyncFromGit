@@ -47,6 +47,7 @@
   "notice.cloneComplete": "クローン完了！",
   "notice.cloneFailed": "クローン失敗: {error}",
   "notice.getBranchesFailed": "ブランチリスト取得失敗: {error}",
+  "notice.syncAlreadyInProgress": "同期は既に進行中です。しばらくお待ちください...",
 
   "modal.selectBranch": "チェックアウトするブランチを選択",
   "modal.cancel": "キャンセル",
